@@ -1,3 +1,20 @@
+def prefix_to_mask(prefix):
+    binary_str = ""
+    rest = 32 - prefix
+
+    binary_str += prefix * "1"
+    binary_str += rest * "0"
+
+    octet_1 = int(binary_str[0:8], 2)
+    octet_2 = int(binary_str[8:16], 2)
+    octet_3 = int(binary_str[16:24], 2)
+    octet_4 = int(binary_str[24:32], 2)
+
+    mask = [octet_1, octet_2, octet_3, octet_4]
+
+    return mask
+
+
 def validate_subnet_mask(subnet_mask: str) -> list:
     valid_mask_octets = [0, 128, 192, 224, 240, 248, 252, 254, 255]
 
@@ -7,6 +24,7 @@ def validate_subnet_mask(subnet_mask: str) -> list:
             "Error: Invalid subnet mask fromat\n"
             "Example: 255.255.255.0"
         )
+    valid_mask = []
     for octet in mask:
         try:
             numerical_mask = int(octet)
@@ -18,6 +36,9 @@ def validate_subnet_mask(subnet_mask: str) -> list:
             raise ValueError(
                 f"Error: Subnet mask octets must be in this values {valid_mask_octets}"
             )
+        valid_mask.append(numerical_mask)
+
+    return valid_mask
     
 
 def validate_ip_address(ip: str) -> list:
@@ -53,6 +74,7 @@ def validate_prefix(prefix: str) -> int:
         raise ValueError(
             "Error: Invalid prefix value. Prefix must range from 0 to 32"
         )
+
     return numerical_prefix
 
 def validate_ip_prefix(ip_prefix: str) -> tuple:
@@ -85,6 +107,10 @@ def valid_cidr(cidr: list):
 
     if args_len == 2:
         ip, prefix = validate_ip_prefix(cidr[1])
-        return ip, prefix
+        mask = prefix_to_mask(prefix)
+        return ip, mask
 
     ip = validate_ip_address(cidr[1])
+    mask = validate_subnet_mask(cidr[2])
+
+    return ip, mask
