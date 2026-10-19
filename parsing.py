@@ -21,7 +21,7 @@ def validate_subnet_mask(subnet_mask: str) -> list:
     mask = subnet_mask.split('.')
     if len(mask) != 4:
         raise ValueError(
-            "Error: Invalid subnet mask fromat\n"
+            "Error: Invalid subnet mask format\n"
             "Example: 255.255.255.0"
         )
     valid_mask = []
@@ -30,7 +30,7 @@ def validate_subnet_mask(subnet_mask: str) -> list:
             numerical_mask = int(octet)
         except:
             raise ValueError(
-                "Error: Invalid subnet mask octect. Octet must be a number"
+                "Error: Invalid subnet mask octet. Octet must be a number"
             )
         if numerical_mask not in valid_mask_octets:
             raise ValueError(
@@ -38,6 +38,22 @@ def validate_subnet_mask(subnet_mask: str) -> list:
             )
         valid_mask.append(numerical_mask)
 
+    o1, o2, o3, o4 = valid_mask
+    decimal_ip = (o1 << 24) | (o2 << 16) | (o3 << 8) | o4
+    binary_str = format(decimal_ip, '032b')
+
+    zeros = ""
+    for x in range(len(binary_str)):
+        if binary_str[x] == '0':
+            zeros = binary_str[x: len(binary_str)]
+            break
+    
+    if '1' in zeros:
+        raise ValueError(
+            "Error: invalid subnet mask\n"
+            "Examples: 255.255.0.0 | 255.255.255.0 | 255.255.255.128"
+        )
+    
     return valid_mask
     
 
@@ -95,7 +111,7 @@ def valid_cidr(cidr: list):
     args_len = len(cidr)
     if args_len == 1:
         raise ValueError(
-            "Error: Error: Missing required arguments.\n\n"
+            "Error: Missing required arguments.\n\n"
             "Examples:\n"
             "python3 calculator.py 192.168.1.0/24\n"
             "python3 calculator.py 10.0.0.0 255.255.255.0\n"
